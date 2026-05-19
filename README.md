@@ -6,37 +6,16 @@
 
 ## Архитектура
 
-```
-┌─────────────────────────────────────────────────────┐
-│                      Клиент                          │
-│                  (Swagger / curl)                    │
-└──────────────┬──────────────────┬───────────────────┘
-               │                  │
-               ▼                  ▼
-┌──────────────────┐   ┌──────────────────────┐
-│   Auth Service   │   │    Tasks Service     │
-│  localhost:8000  │   │   localhost:8001     │
-│                  │   │                      │
-│  - Регистрация   │   │  - Создание задач    │
-│  - Логин / JWT   │   │  - Просмотр задач    │
-│  - Refresh token │   │  - Обновление задач  │
-│  - История входов│   │  - Удаление задач    │
-│  - Logout        │   │  - Фильтрация        │
-└────────┬─────────┘   └──────────┬───────────┘
-         │                        │
-         │   JWT_SECRET_KEY       │ валидирует JWT
-         │   (общий секрет)  ◄────┘
-         │
-┌────────▼─────────┐   ┌──────────────────────┐
-│   PostgreSQL     │   │      PostgreSQL       │
-│   auth_db:5434   │   │    tasks_db:5435      │
-└──────────────────┘   └──────────────────────┘
-         │
-┌────────▼─────────┐
-│      Redis       │
-│   localhost:6379 │
-│  (token blacklist│
-└──────────────────┘
+```mermaid
+graph TD
+    Client([Клиент / Swagger]) --> AuthService
+    Client --> TasksService
+
+    AuthService[Auth Service<br/>localhost:8000] --> AuthDB[(PostgreSQL<br/>auth_db:5436)]
+    AuthService --> Redis[(Redis<br/>6379)]
+
+    TasksService[Tasks Service<br/>localhost:8001] --> TasksDB[(PostgreSQL<br/>tasks_db:5435)]
+    TasksService -->|валидирует JWT| AuthService
 ```
 
 ## Сервисы
