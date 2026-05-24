@@ -1,24 +1,19 @@
-version: "3.9"
-
-# Общий docker-compose для запуска всего Task Manager
-# Запуск: docker-compose up -d
-# Auth Service: http://localhost:8000/docs
-# Tasks Service: http://localhost:8001/docs
-
 services:
   auth_db:
     image: postgres:16-alpine
     restart: unless-stopped
+    env_file:
+      - auth_service/.env
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: auth_db
+      POSTGRES_USER: ${AUTH_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${AUTH_POSTGRES_DB}
     ports:
-      - "5436:5432"
+      - "${AUTH_POSTGRES_PORT}:5432"
     volumes:
       - auth_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d auth_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${AUTH_POSTGRES_USER} -d ${AUTH_POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,16 +21,18 @@ services:
   tasks_db:
     image: postgres:16-alpine
     restart: unless-stopped
+    env_file:
+      - tasks_service/.env
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: tasks_db
+      POSTGRES_USER: ${TASKS_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${TASKS_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${TASKS_POSTGRES_DB}
     ports:
-      - "5435:5432"
+      - "${TASKS_POSTGRES_PORT}:5432"
     volumes:
       - tasks_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d tasks_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${TASKS_POSTGRES_USER} -d ${TASKS_POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -44,7 +41,7 @@ services:
     image: redis:7-alpine
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:6379"
     volumes:
       - redis_data:/data
     healthcheck:

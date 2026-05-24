@@ -4,11 +4,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
-    POSTGRES_HOST: str = "localhost"
-    POSTGRES_PORT: int = 5435
+    TASKS_POSTGRES_USER: str
+    TASKS_POSTGRES_PASSWORD: str
+    TASKS_POSTGRES_DB: str
+    TASKS_POSTGRES_HOST: str = "localhost"
+    TASKS_POSTGRES_PORT: int = 5435
 
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
@@ -22,8 +22,8 @@ class Settings(BaseSettings):
     @property
     def database_url(self) -> str:
         return (
-            f"postgresql+psycopg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
-            f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+            f"postgresql+psycopg://{self.TASKS_POSTGRES_USER}:{self.TASKS_POSTGRES_PASSWORD}"
+            f"@{self.TASKS_POSTGRES_HOST}:{self.TASKS_POSTGRES_PORT}/{self.TASKS_POSTGRES_DB}"
         )
 
 
