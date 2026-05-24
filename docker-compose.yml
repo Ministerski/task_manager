@@ -1,0 +1,56 @@
+services:
+  auth_db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file:
+      - auth_service/.env
+    environment:
+      POSTGRES_USER: ${AUTH_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${AUTH_POSTGRES_DB}
+    ports:
+      - "${AUTH_POSTGRES_PORT}:5432"
+    volumes:
+      - auth_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AUTH_POSTGRES_USER} -d ${AUTH_POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  tasks_db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file:
+      - tasks_service/.env
+    environment:
+      POSTGRES_USER: ${TASKS_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${TASKS_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${TASKS_POSTGRES_DB}
+    ports:
+      - "${TASKS_POSTGRES_PORT}:5432"
+    volumes:
+      - tasks_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${TASKS_POSTGRES_USER} -d ${TASKS_POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  auth_postgres_data:
+  tasks_postgres_data:
+  redis_data:
